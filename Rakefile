@@ -7,19 +7,6 @@ def step(description)
   puts "\e[32m#{description}\e[0m"
 end
 
-def app_path(name)
-  path = "/Applications/#{name}.app"
-  ["~#{path}", path].each do |full_path|
-    return full_path if File.directory?(full_path)
-  end
-
-  return nil
-end
-
-def app?(name)
-  return !app_path(name).nil?
-end
-
 def link_file(original_filename, symlink_filename)
   original_path = File.expand_path(original_filename)
   symlink_path = File.expand_path(symlink_filename)
@@ -44,93 +31,109 @@ def link_file(original_filename, symlink_filename)
   ln_s original_path, symlink_path, :verbose => true
 end
 
+# instructions from http://www.webupd8.org/2011/04/solarized-must-have-color-paletter-for.html
+def solarize(color)
+  Dir.chdir 'gnome-terminal-colors-solarized' do
+    sh "./set_#{color}.sh"
+  end
+
+  step 'fix ls-colors'
+  Dir.chdir do
+    sh "wget --quiet --no-check-certificate https://raw.github.com/seebi/dircolors-solarized/master/dircolors.ansi-#{color}"
+    sh "mv dircolors.ansi-#{color} .dircolors"
+    sh 'eval `dircolors .dircolors`'
+  end
+end
+
 namespace :install do
 
   desc 'Apt-get Update'
   task :update do
     step 'apt-get update'
-    sh 'sudo apt-get update'
+    sh 'sudo apt-get update > /dev/null'
   end
 
   desc 'Install Vim'
   task :vim do
     step 'vim'
-    sh 'sudo apt-get install vim'
+    sh 'sudo apt-get install vim > /dev/null'
+    link_file 'vim', '~/.vim'
+    link_file 'vimrc', '~/.vimrc'
+    link_file 'vimrc.local', '~/.vimrc.local'
+  end
+
+  desc 'Install zsh'
+  task :zsh do
+    step 'zsh'
+    sh 'sudo apt-get install zsh > /dev/null'
+    # Need to chsh
+  end
+
+  desc 'Install oh-my-zsh'
+  task :oh_my_zsh => :zsh do
+    step 'oh-my-zsh'
+    sh 'git clone git://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh > /dev/null' unless Dir.exist? "#{Dir.home}/.oh-my-zsh"
+    link_file 'zshrc', '~/.zshrc'
   end
 
   desc 'Install tmux'
   task :tmux do
     step 'tmux'
-    sh 'sudo apt-get install tmux'
+    sh 'sudo apt-get install tmux > /dev/null'
+    link_file 'tmux.conf', '~/.tmux.conf'
   end
 
   desc 'Install ctags'
   task :ctags do
     step 'ctags'
-    sh 'sudo apt-get install ctags'
+    sh 'sudo apt-get install ctags > /dev/null'
   end
 
   # https://github.com/ggreer/the_silver_searcher
   desc 'Install The Silver Searcher'
   task :the_silver_searcher do
     step 'the_silver_searcher'
-    sh 'sudo apt-get install build-essential automake pkg-config libpcre3-dev zlib1g-dev liblzma-dev'
-    sh 'git clone https://github.com/ggreer/the_silver_searcher.git'
+    sh 'sudo apt-get install build-essential automake pkg-config libpcre3-dev zlib1g-dev liblzma-dev > /dev/null'
+    sh 'git clone https://github.com/ggreer/the_silver_searcher.git' unless Dir.exists? 'the_silver_searcher'
     Dir.chdir 'the_silver_searcher' do
-      sh './build.sh'
+      sh 'git pull'
+      sh './build.sh > /dev/null'
       sh 'sudo make install'
     end
   end
 
-  # instructions from http://www.webupd8.org/2011/04/solarized-must-have-color-paletter-for.html
-  desc 'Install Solarized and fix ls'
-  task :solarized, :arg1 do |t, args|
-    args[:arg1] = "dark" unless ["dark", "light"].include? args[:arg1]
-    color = ["dark", "light"].include?(args[:arg1]) ? args[:arg1] : "dark"
-
+  desc 'Download Solarized'
+  task :solarized do
     step 'solarized'
     sh 'git clone https://github.com/sigurdga/gnome-terminal-colors-solarized.git' unless File.exist? 'gnome-terminal-colors-solarized'
-    Dir.chdir 'gnome-terminal-colors-solarized' do
-      sh "./solarize #{color}"
-    end
+  end
 
-    step 'fix ls-colors'
-    Dir.chdir do
-      sh "wget --no-check-certificate https://raw.github.com/seebi/dircolors-solarized/master/dircolors.ansi-#{color}"
-      sh "mv dircolors.ansi-#{color} .dircolors"
-      sh 'eval `dircolors .dircolors`'
-    end
+  desc 'Install Solarized Dark'
+  task :solarized_dark => :solarized do
+    solarize 'dark'
+  end
+
+  desc 'Install Solarized Light'
+  task :solarized_light => :solarized do
+    solarize 'light'
   end
 end
 
-desc 'Install these config files.'
-task :default do
-  Rake::Task['install:update'].invoke
-  Rake::Task['install:vim'].invoke
-  Rake::Task['install:tmux'].invoke
-  Rake::Task['install:ctags'].invoke
-  Rake::Task['install:the_silver_searcher'].invoke
+desc 'Install the things that make this computer mine.'
+task :default => [
+  'install:update',
+  'install:vim',
+  'install:tmux',
+  'install:ctags',
+  'install:the_silver_searcher',
+  'install:zsh',
+  'install:oh_my_zsh'
+] do
 
   step 'git submodules'
   sh 'git submodule update --init'
 
-  # TODO install gem ctags?
-  # TODO run gem ctags?
-
-  step 'symlink'
-  link_file 'vim'       , '~/.vim'
-  link_file 'tmux.conf' , '~/.tmux.conf'
-  link_file 'vimrc'     , '~/.vimrc'
-  unless File.exist?(File.expand_path('~/.vimrc.local'))
-    cp File.expand_path('vimrc.local'), File.expand_path('~/.vimrc.local'), :verbose => true
-  end
-
   step 'solarized dark or light'
-  puts
-  puts " You're almost done! Inside of the maximum-awesome-linux directory, do: "
-  puts "   rake install:solarized['dark'] "
-  puts "     or                           "
-  puts "   rake install:solarized['light']"
-
-  puts " You may need to close your terminal and re-open it for it to take effect."
+  puts ' Run: "rake install:solarized_dark" or "rake install:solarized_light"'
+  puts ' You may need to close your terminal and re-open it for it to take effect.'
 end
