@@ -50,7 +50,7 @@ namespace :install do
   desc 'Apt-get Update'
   task :update do
     step 'apt-get update'
-    sh 'sudo apt-get update > /dev/null'
+    sh 'sudo apt-get update -q'
   end
 
   desc 'Install Vim'
@@ -72,28 +72,28 @@ namespace :install do
   desc 'Install oh-my-zsh'
   task :oh_my_zsh => :zsh do
     step 'oh-my-zsh'
-    sh 'git clone git://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh > /dev/null' unless Dir.exist? "#{Dir.home}/.oh-my-zsh"
+    sh 'git clone git://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh' unless Dir.exist? "#{Dir.home}/.oh-my-zsh"
     link_file 'zshrc', '~/.zshrc'
   end
 
   desc 'Install tmux'
   task :tmux do
     step 'tmux'
-    sh 'sudo apt-get install tmux > /dev/null'
+    sh 'sudo apt-get install -q tmux'
     link_file 'tmux.conf', '~/.tmux.conf'
   end
 
   desc 'Install ctags'
   task :ctags do
     step 'ctags'
-    sh 'sudo apt-get install ctags > /dev/null'
+    sh 'sudo apt-get install -q ctags'
   end
 
   # https://github.com/ggreer/the_silver_searcher
   desc 'Install The Silver Searcher'
   task :the_silver_searcher do
     step 'the_silver_searcher'
-    sh 'sudo apt-get install build-essential automake pkg-config libpcre3-dev zlib1g-dev liblzma-dev > /dev/null'
+    sh 'sudo apt-get install -q build-essential automake pkg-config libpcre3-dev zlib1g-dev liblzma-dev'
     sh 'git clone https://github.com/ggreer/the_silver_searcher.git' unless Dir.exists? 'the_silver_searcher'
     Dir.chdir 'the_silver_searcher' do
       sh 'git pull'
