@@ -56,7 +56,7 @@ namespace :install do
   desc 'Install Vim'
   task :vim do
     step 'vim'
-    sh 'sudo apt-get install vim > /dev/null'
+    sh 'sudo apt-get install -q vim'
     link_file 'vim', '~/.vim'
     link_file 'vimrc', '~/.vimrc'
     link_file 'vimrc.local', '~/.vimrc.local'
@@ -65,7 +65,7 @@ namespace :install do
   desc 'Install zsh'
   task :zsh do
     step 'zsh'
-    sh 'sudo apt-get install zsh > /dev/null'
+    sh 'sudo apt-get install -q zsh'
     # Need to chsh
   end
 
@@ -105,6 +105,7 @@ namespace :install do
   desc 'Download Solarized'
   task :solarized do
     step 'solarized'
+    sh 'sudo apt-get install -q gnome-terminal'
     sh 'git clone https://github.com/sigurdga/gnome-terminal-colors-solarized.git' unless File.exist? 'gnome-terminal-colors-solarized'
   end
 
