@@ -34,6 +34,7 @@ set tabstop=8                                                " actual tabs occup
 set wildignore=log/**,node_modules/**,target/**,tmp/**,*.rbc
 set wildmenu                                                 " show a navigable menu for tab completion
 set wildmode=longest,list,full
+set ff=unix
 
 " keyboard shortcuts
 let mapleader = ','
@@ -93,16 +94,17 @@ else
   let &t_EI = "\<Esc>]50;CursorShape=0\x7"
 endif
 
-" Go crazy!
-if filereadable(expand("~/.vimrc.local"))
-  " In your .vimrc.local, you might like:
-  "
-  " set autowrite
-  " set nocursorline
-  " set nowritebackup
-  " set whichwrap+=<,>,h,l,[,] " Wrap arrow keys between lines
-  "
-  " autocmd! bufwritepost .vimrc source ~/.vimrc
-  " noremap! jj <ESC>
-  source ~/.vimrc.local
-endif
+set nocursorline " don't highlight current line
+
+" keyboard shortcuts
+inoremap jj <ESC>
+
+command! -bang W try | wq | catch /more file/ | wn | endt
+
+command! -bang -nargs=* -complete=file TSlime call Send_to_Tmux(<q-args>."\n")
+nmap <leader>s :TSlime 
+
+" gui settings
+" Not working for some reason
+" colorscheme solarized
+colorscheme zellner
