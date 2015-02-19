@@ -29,3 +29,5 @@ alias q="exit"
 # Extra path lines
 
 export PATH=$HOME/bin:/usr/local/bin:$PATH
+
+export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
