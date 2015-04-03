@@ -108,3 +108,8 @@ nmap <leader>s :TSlime
 " Not working for some reason
 " colorscheme solarized
 colorscheme zellner
+
+if &diff " to make things better to see
+  colorscheme slate " prevents the background from being white (?)
+  colorscheme solarized
+endif
