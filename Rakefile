@@ -50,13 +50,15 @@ namespace :install do
   desc 'Apt-get Update'
   task :update do
     step 'apt-get update'
-    sh 'sudo apt-get update -q'
+    # Already up to date
+    # sh 'sudo apt-get update -q'
   end
 
   desc 'Install Vim'
   task :vim do
     step 'vim'
-    sh 'sudo apt-get install -q vim'
+    # Already installed
+    # sh 'sudo apt-get install -q vim'
     link_file 'vim', '~/.vim'
     link_file 'vimrc', '~/.vimrc'
     link_file 'vimrc.local', '~/.vimrc.local'
@@ -65,7 +67,8 @@ namespace :install do
   desc 'Install zsh'
   task :zsh do
     step 'zsh'
-    sh 'sudo apt-get install -q zsh'
+    # Already installed
+    # sh 'sudo apt-get install -q zsh'
     # Need to chsh
   end
 
@@ -79,33 +82,38 @@ namespace :install do
   desc 'Install tmux'
   task :tmux do
     step 'tmux'
-    sh 'sudo apt-get install -q tmux'
+    # Already installed
+    # sh 'sudo apt-get install -q tmux'
     link_file 'tmux.conf', '~/.tmux.conf'
   end
 
   desc 'Install ctags'
   task :ctags do
     step 'ctags'
-    sh 'sudo apt-get install -q ctags'
+    # Already installed
+    # sh 'sudo apt-get install -q ctags'
   end
 
   # https://github.com/ggreer/the_silver_searcher
   desc 'Install The Silver Searcher'
   task :the_silver_searcher do
     step 'the_silver_searcher'
-    sh 'sudo apt-get install -q build-essential automake pkg-config libpcre3-dev zlib1g-dev liblzma-dev'
+    # Already installed
+    # sh 'sudo apt-get install -q build-essential automake pkg-config libpcre3-dev zlib1g-dev liblzma-dev'
     sh 'git clone https://github.com/ggreer/the_silver_searcher.git' unless Dir.exists? 'the_silver_searcher'
     Dir.chdir 'the_silver_searcher' do
       sh 'git pull'
       sh './build.sh > /dev/null'
-      sh 'sudo make install'
+      # Not sure how to manage this
+      # sh 'sudo make install'
     end
   end
 
   desc 'Download Solarized'
   task :solarized do
     step 'solarized'
-    sh 'sudo apt-get install -q gnome-terminal'
+    # Already installed
+    # sh 'sudo apt-get install -q gnome-terminal'
     sh 'git clone https://github.com/sigurdga/gnome-terminal-colors-solarized.git' unless File.exist? 'gnome-terminal-colors-solarized'
   end
 
@@ -126,7 +134,7 @@ task :default => [
   'install:vim',
   'install:tmux',
   'install:ctags',
-  'install:the_silver_searcher',
+  # 'install:the_silver_searcher',
   'install:zsh',
   'install:oh_my_zsh'
 ] do
