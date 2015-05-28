@@ -168,6 +168,15 @@ namespace :install do
     brew_install 'tmux', :requires => '>= 1.8'
   end
 
+  desc 'Install oh-my-zsh'
+  task :zsh do
+    step 'oh-my-zsh'
+    brew_install 'zsh'
+
+    sh 'git clone git://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh' unless Dir.exist? "#{Dir.home}/.oh-my-zsh"
+    link_file 'zshrc', '~/.zshrc'
+  end
+
   desc 'Install MacVim'
   task :macvim do
     step 'MacVim'
@@ -234,6 +243,7 @@ task :install do
   Rake::Task['install:reattach_to_user_namespace'].invoke
   Rake::Task['install:tmux'].invoke
   Rake::Task['install:macvim'].invoke
+  Rake::Task['install:zsh'].invoke
 
   # TODO install gem ctags?
   # TODO run gem ctags?

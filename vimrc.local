@@ -5,16 +5,7 @@ inoremap jj <ESC>
 
 " highlight search
 "set hlsearch
-"nmap <leader>hl :let @/ = ""<CR>
-
-" gui settings
-if (&t_Co == 256 || has('gui_running'))
-  if ($TERM_PROGRAM == 'iTerm.app')
-    colorscheme solarized
-  else
-    colorscheme desert
-  endif
-endif
+nmap <leader>hl :let @/ = ""<CR>
 
 " Disambiguate ,a & ,t from the Align plugin, making them fast again.
 "
@@ -29,5 +20,12 @@ function! s:RemoveConflictingAlignMaps()
     AlignMapsClean
   endif
 endfunction
+
 command! -nargs=0 RemoveConflictingAlignMaps call s:RemoveConflictingAlignMaps()
+command! -bang W try | wq | catch /more file/ | wn | endt
 silent! autocmd VimEnter * RemoveConflictingAlignMaps
+command! -bang -nargs=* -complete=file TSlime call Send_to_Tmux(<q-args>."\n")
+nmap <leader>s :TSlime 
+
+" gui settings
+colorscheme slate
